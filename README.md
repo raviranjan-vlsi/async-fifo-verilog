@@ -78,7 +78,7 @@ Features:
 - Overflow protection
 
 <p align="center">
-<img src="docs/write_pointer.png" width="500">
+<img src="images/write_pointer_logic.png" width="500">
 </p>
 
 ---
@@ -95,7 +95,7 @@ Features:
 - Underflow protection
 
 <p align="center">
-<img src="docs/read_pointer.png" width="500">
+<img src="images/read_pointer_logic.png" width="500">
 </p>
 
 ---
