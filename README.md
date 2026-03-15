@@ -1,137 +1,309 @@
-# Asynchronous FIFO in Verilog with Almost Full / Almost Empty Flags
+# 📦 Parameterized Asynchronous FIFO using Gray-Code Pointers
 
-## Overview
+<p align="center">
 
-This repository contains a **parameterized asynchronous FIFO implementation in Verilog HDL** designed for safe data transfer between two independent clock domains.
+![Verilog](https://img.shields.io/badge/Language-Verilog-blue)
+![Domain](https://img.shields.io/badge/Domain-VLSI-orange)
+![Concept](https://img.shields.io/badge/Concept-Clock%20Domain%20Crossing-green)
+![Design](https://img.shields.io/badge/Design-Asynchronous%20FIFO-purple)
+![License](https://img.shields.io/badge/License-MIT-brightgreen)
 
-The design uses **Gray-code pointer synchronization** and **two-stage synchronizers** to mitigate metastability during clock domain crossing (CDC).
-
-The FIFO supports the following status signals:
-
-- Full
-- Empty
-- Almost Full
-- Almost Empty
-
-These signals help upstream and downstream modules control data flow and avoid overflow or underflow.
+</p>
 
 ---
 
-## Motivation
+# 🚀 Overview
 
-Modern digital systems frequently contain multiple modules operating under **different clock domains**. Direct data transfer between such modules can lead to:
+This project implements a **Parameterized Asynchronous FIFO (First-In First-Out) buffer** using **Gray-code pointer synchronization** to enable reliable **Clock Domain Crossing (CDC)** between two independent clock domains.
 
-- Metastability
-- Data corruption
-- Timing hazards
-
-An **asynchronous FIFO** provides a reliable solution for buffering data between independent clocks.
+The design ensures safe data transfer between modules operating at **different clock frequencies**, which is a common requirement in **System-on-Chip (SoC) architectures**, communication interfaces, and digital hardware systems.
 
 ---
 
-## Key Features
+# 🎯 Key Features
 
-- Parameterized FIFO depth
-- Parameterized data width
-- Gray-code pointer synchronization
-- Two-flop synchronizers for CDC safety
-- Full and Empty detection
-- Almost Full / Almost Empty early warning flags
-- Dual-port memory implementation
-- Multi-clock testbench verification
+✔ Parameterized FIFO depth and data width  
+✔ Independent read and write clocks  
+✔ Gray-code pointer synchronization  
+✔ Full and Empty detection  
+✔ Almost Full and Almost Empty flags  
+✔ Dual-port FIFO memory  
+✔ Safe clock domain crossing design  
 
 ---
 
-## Architecture
+# 🧠 Problem Addressed
 
-The FIFO consists of two independent domains:
+When two modules operate on **different clocks**, direct data transfer can lead to:
 
-### Write Clock Domain
-Responsible for writing incoming data into the FIFO.
+- Metastability  
+- Data corruption  
+- Timing hazards  
 
-Components:
+Asynchronous FIFOs solve this problem by acting as a **buffer between clock domains**.
+
+---
+
+# 🏗 System Architecture
+
+<p align="center">
+<img src="docs/system_architecture.png" width="650">
+</p>
+
+The architecture contains the following modules:
+
+- Write Pointer Logic
+- Read Pointer Logic
+- FIFO Memory (Dual-Port)
+- Gray Code Pointer Synchronization
+- Full & Almost Full Detection
+- Empty & Almost Empty Detection
+
+---
+
+# ⚙ Core Modules
+
+## Write Pointer Logic
+
+Maintains the write address inside the **write clock domain**.
+
+Features:
+
 - Binary write pointer
-- Gray code conversion
-- Full detection logic
+- Gray-code conversion
+- Write address generation
+- Overflow protection
 
-### Read Clock Domain
-Responsible for reading data from the FIFO.
+<p align="center">
+<img src="docs/write_pointer.png" width="500">
+</p>
 
-Components:
+---
+
+## Read Pointer Logic
+
+Maintains the read address inside the **read clock domain**.
+
+Features:
+
 - Binary read pointer
-- Gray code conversion
-- Empty detection logic
+- Gray-code conversion
+- Safe pointer synchronization
+- Underflow protection
 
-### Clock Domain Synchronization
-
-Pointers are transferred between clock domains using:
-
-- Gray code encoding
-- Two-stage flip-flop synchronizers
-
-This ensures safe pointer comparison across clock boundaries.
+<p align="center">
+<img src="docs/read_pointer.png" width="500">
+</p>
 
 ---
 
-## FIFO Architecture Diagram
+## FIFO Memory
 
-    WRITE DOMAIN                    READ DOMAIN
+The memory block is implemented as a **dual-port memory**.
 
-  +---------------+            +---------------+
-  | Write Pointer |            | Read Pointer  |
-  |  Binary       |            |  Binary       |
-  +-------+-------+            +-------+-------+
-          |                            |
-          v                            v
-   +--------------+             +--------------+
-   | Gray Encode  |             | Gray Encode  |
-   +------+-------+             +------+-------+
-          |                            |
-          v                            v
-     +---------+                 +---------+
-     | Sync    |                 | Sync    |
-     | r2w     |                 | w2r     |
-     +----+----+                 +----+----+
-          |                            |
-          v                            v
-      +------------------------------------+
-      |           FIFO MEMORY              |
-      |         (Dual Port RAM)            |
-      +------------------------------------+
+| Port | Function |
+|-----|----------|
+| Write Port | Data written using write clock |
+| Read Port | Data read using read clock |
 
+Advantages:
 
-
-      
----
-
-## Modules
-
-| Module | Description |
-|------|-------------|
-| `Aynchrnous_FIFO_with_Almost_Empty_Full_flag` | Top FIFO module |
-| `fifo_mem` | Dual-port FIFO memory |
-| `sync_w2r` | Write pointer synchronizer |
-| `sync_r2w` | Read pointer synchronizer |
-| `full_with_almost` | Full and almost-full logic |
-| `empty_with_almost` | Empty and almost-empty logic |
-| `clock_divider` | Generates independent read/write clocks for simulation |
+- Simultaneous read and write
+- Efficient buffering
+- Prevents overflow/underflow
 
 ---
 
-## Parameters
+# 🔄 Gray Code Synchronization
 
-The FIFO is configurable through parameters.
+Binary counters can change **multiple bits simultaneously**, which can cause synchronization errors across clock domains.
+
+Gray-code solves this problem because:
+
+✔ Only **one bit changes at a time**  
+✔ Reduced metastability risk  
+✔ Reliable pointer synchronization  
+
+<p align="center">
+<img src="docs/synchronizer.png" width="500">
+</p>
+
+Two-stage flip-flop synchronizers are used for safe CDC transfer.
+
+---
+
+# 📊 Full and Almost Full Detection
+
+The FIFO becomes **FULL** when the write pointer catches the read pointer after wrap-around.
+
+### Full Detection Logic
+
+```
+Next Gray Write Pointer == Inverted MSB of Read Pointer
+```
+
+<p align="center">
+<img src="docs/full_logic.png" width="500">
+</p>
+
+### Almost Full
+
+Provides early warning before FIFO overflow.
+
+```
+Used Entries >= DEPTH - ALMOST_FULL_MARGIN
+```
+
+---
+
+# 📉 Empty and Almost Empty Detection
+
+The FIFO becomes **EMPTY** when:
+
+```
+Read Pointer == Synchronized Write Pointer
+```
+
+<p align="center">
+<img src="docs/empty_logic.png" width="500">
+</p>
+
+### Almost Empty
+
+Indicates the buffer is close to empty.
+
+```
+Used Entries <= ALMOST_EMPTY_MARGIN
+```
+
+---
+
+# 🧪 Simulation Results
+
+The FIFO was verified using a **multi-clock testbench**.
+
+### Simulation Waveform
+
+<p align="center">
+<img src="images/simulation_output.png" width="750">
+</p>
+
+Verified conditions:
+
+✔ Correct data ordering  
+✔ Proper flag generation  
+✔ Stable clock domain crossing  
+
+---
+
+# 🧩 RTL Schematic
+
+<p align="center">
+<img src="images/rtl_schematic.png" width="750">
+</p>
+
+The RTL view shows:
+
+- Synchronizer modules  
+- FIFO memory block  
+- Pointer generation logic  
+- Flag detection modules  
+
+---
+
+# 📁 Project Structure
+
+```
+Asynchronous-FIFO
+│
+├── rtl
+│   ├── asynchronous_fifo.v
+│   ├── sync_w2r.v
+│   ├── sync_r2w.v
+│   ├── fifo_mem.v
+│   ├── full_with_almost.v
+│   └── empty_with_almost.v
+│
+├── testbench
+│   └── fifo_tb.v
+│
+├── docs
+│   ├── architecture.png
+│   ├── pointer_logic.png
+│   └── synchronizer.png
+│
+├── images
+│   ├── simulation_output.png
+│   └── rtl_schematic.png
+│
+└── README.md
+```
+
+---
+
+# ⚡ Design Parameters
 
 | Parameter | Description |
-|--------|-------------|
+|-----------|-------------|
 | WIDTH | Data width |
 | DEPTH | FIFO depth |
-| ALMOST_FULL_MARGIN | Threshold for almost-full |
-| ALMOST_EMPTY_MARGIN | Threshold for almost-empty |
+| ALMOST_FULL_MARGIN | Threshold for Almost Full |
+| ALMOST_EMPTY_MARGIN | Threshold for Almost Empty |
 
-Example:
+---
+
+# 💻 Example Verilog Snippet
 
 ```verilog
-parameter WIDTH = 4;
-parameter DEPTH = 8;
+always @(posedge w_clk) begin
+ if (wr_rq && !full) begin
+  fifo[waddr] <= wdata;
+ end
+end
 
+always @(posedge r_clk) begin
+ if (rd_rq && !empty) begin
+  rdata <= fifo[raddr];
+ end
+end
+```
+
+---
+
+# 🎯 Applications
+
+This FIFO can be used in:
+
+- SoC Interconnect Systems
+- Communication Interfaces
+- Bus Bridges
+- Network Routers
+- Processor Pipelines
+- DMA Controllers
+
+---
+
+# 🔮 Future Improvements
+
+Possible extensions include:
+
+- AXI / AHB FIFO integration
+- Formal CDC verification
+- FPGA implementation
+- ASIC optimization
+- Multi-channel FIFO architecture
+
+---
+
+# 👨‍💻 Author
+
+**Raviranjan Kumar**
+
+M.Tech – Embedded System Design  
+National Institute of Technology Kurukshetra
+
+---
+
+# ⭐ Support
+
+If you find this project useful, please **⭐ star the repository**.
