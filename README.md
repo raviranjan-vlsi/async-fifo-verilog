@@ -108,15 +108,17 @@ The memory block is implemented as a **dual-port memory**.
 |-----|----------|
 | Write Port | Data written using write clock |
 | Read Port | Data read using read clock |
-<p align="right">
-<img src="images/fifo_memory.png" width="500">
-</p>
+
 
 Advantages:
 
 - Simultaneous read and write
 - Efficient buffering
 - Prevents overflow/underflow
+
+<p align="r">
+<img src="images/fifo_memory.png" width="500">
+</p>
 
 ---
 
