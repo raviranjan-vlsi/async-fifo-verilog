@@ -108,6 +108,9 @@ The memory block is implemented as a **dual-port memory**.
 |-----|----------|
 | Write Port | Data written using write clock |
 | Read Port | Data read using read clock |
+<p align="right">
+<img src="images/fifo_memory.png" width="500">
+</p>
 
 Advantages:
 
@@ -128,7 +131,7 @@ Gray-code solves this problem because:
 ✔ Reliable pointer synchronization  
 
 <p align="center">
-<img src="docs/synchronizer.png" width="500">
+<img src="images/flop_synchronizer.png" width="500">
 </p>
 
 Two-stage flip-flop synchronizers are used for safe CDC transfer.
@@ -146,7 +149,7 @@ Next Gray Write Pointer == Inverted MSB of Read Pointer
 ```
 
 <p align="center">
-<img src="docs/full_logic.png" width="500">
+<img src="images/full.png" width="500">
 </p>
 
 ### Almost Full
@@ -156,6 +159,10 @@ Provides early warning before FIFO overflow.
 ```
 Used Entries >= DEPTH - ALMOST_FULL_MARGIN
 ```
+
+<p align="center">
+<img src="images/almost_full.png" width="500">
+</p>
 
 ---
 
@@ -167,8 +174,8 @@ The FIFO becomes **EMPTY** when:
 Read Pointer == Synchronized Write Pointer
 ```
 
-<p align="center">
-<img src="docs/empty_logic.png" width="500">
+<p align="c">
+<img src="images/empty.png" width="500">
 </p>
 
 ### Almost Empty
@@ -179,6 +186,10 @@ Indicates the buffer is close to empty.
 Used Entries <= ALMOST_EMPTY_MARGIN
 ```
 
+<p align="c">
+<img src="images/almost_empty.png" width="500">
+</p>
+
 ---
 
 # 🧪 Simulation Results
@@ -188,7 +199,7 @@ The FIFO was verified using a **multi-clock testbench**.
 ### Simulation Waveform
 
 <p align="center">
-<img src="images/simulation_output.png" width="750">
+<img src="images/simulation_results.png" width="750">
 </p>
 
 Verified conditions:
@@ -202,7 +213,7 @@ Verified conditions:
 # 🧩 RTL Schematic
 
 <p align="center">
-<img src="images/rtl_schematic.png" width="750">
+<img src="images/RTL_schematic_fifo.png" width="750">
 </p>
 
 The RTL view shows:
