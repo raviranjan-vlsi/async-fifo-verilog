@@ -108,7 +108,9 @@ The memory block is implemented as a **dual-port memory**.
 |-----|----------|
 | Write Port | Data written using write clock |
 | Read Port | Data read using read clock |
-
+<p align="center">
+<img src="images/fifo_memory.png" width="500">
+</p>
 
 Advantages:
 
@@ -116,9 +118,7 @@ Advantages:
 - Efficient buffering
 - Prevents overflow/underflow
 
-<p align="right">
-<img src="images/fifo_memory.png" width="500">
-</p>
+
 
 ---
 
@@ -133,7 +133,7 @@ Gray-code solves this problem because:
 ✔ Reliable pointer synchronization  
 
 <p align="center">
-<img src="images/flop_synchronizer.png" width="500">
+<img src="images/flop_syncronizer.png" width="500">
 </p>
 
 Two-stage flip-flop synchronizers are used for safe CDC transfer.
@@ -176,7 +176,7 @@ The FIFO becomes **EMPTY** when:
 Read Pointer == Synchronized Write Pointer
 ```
 
-<p align="c">
+<p align="center">
 <img src="images/empty.png" width="500">
 </p>
 
@@ -188,7 +188,7 @@ Indicates the buffer is close to empty.
 Used Entries <= ALMOST_EMPTY_MARGIN
 ```
 
-<p align="c">
+<p align="center">
 <img src="images/almost_empty.png" width="500">
 </p>
 
