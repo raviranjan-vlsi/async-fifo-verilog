@@ -19,7 +19,7 @@ This project implements a **Parameterized Asynchronous FIFO (First-In First-Out)
 The design ensures safe data transfer between modules operating at **different clock frequencies**, which is a common requirement in **System-on-Chip (SoC) architectures**, communication interfaces, and digital hardware systems.
 
 <p align="center">
-<img src="docs/block_diagram.png" width="650">
+<img src="images/block_diagram.png" width="650">
 </p>
 
 
@@ -50,7 +50,7 @@ Asynchronous FIFOs solve this problem by acting as a **buffer between clock doma
 # 🏗 System Architecture
 
 <p align="center">
-<img src="docs/system_architecture.png" width="650">
+<img src="images/system_architecture_async_fifo.png" width="650">
 </p>
 
 The architecture contains the following modules:
