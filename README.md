@@ -116,7 +116,7 @@ Advantages:
 - Efficient buffering
 - Prevents overflow/underflow
 
-<p align="r">
+<p align="right">
 <img src="images/fifo_memory.png" width="500">
 </p>
 
