@@ -268,25 +268,8 @@ Asynchronous-FIFO
 
 ---
 
-# 💻 Example Verilog Snippet
 
-```verilog
-always @(posedge w_clk) begin
- if (wr_rq && !full) begin
-  fifo[waddr] <= wdata;
- end
-end
-
-always @(posedge r_clk) begin
- if (rd_rq && !empty) begin
-  rdata <= fifo[raddr];
- end
-end
-```
-
----
-
-# 🎯 Applications
+#  Applications
 
 This FIFO can be used in:
 
@@ -299,7 +282,7 @@ This FIFO can be used in:
 
 ---
 
-# 🔮 Future Improvements
+#  Future Improvements
 
 Possible extensions include:
 
