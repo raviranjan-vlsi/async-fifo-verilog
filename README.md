@@ -1,11 +1,11 @@
-# 📦 Parameterized Asynchronous FIFO using Gray-Code Pointers
+# 📦 Parameterized Synchronous FIFO Design in Verilog
 
 <p align="center">
 
 ![Verilog](https://img.shields.io/badge/Language-Verilog-blue)
 ![Domain](https://img.shields.io/badge/Domain-VLSI-orange)
-![Concept](https://img.shields.io/badge/Concept-Clock%20Domain%20Crossing-green)
-![Design](https://img.shields.io/badge/Design-Asynchronous%20FIFO-purple)
+![FIFO](https://img.shields.io/badge/Design-Synchronous%20FIFO-green)
+![RTL](https://img.shields.io/badge/Type-RTL%20Design-purple)
 ![License](https://img.shields.io/badge/License-MIT-brightgreen)
 
 </p>
@@ -14,242 +14,209 @@
 
 # 🚀 Overview
 
-This project implements a **Parameterized Asynchronous FIFO (First-In First-Out) buffer** using **Gray-code pointer synchronization** to enable reliable **Clock Domain Crossing (CDC)** between two independent clock domains.
+This project implements a **Parameterized Synchronous FIFO (First-In First-Out)** buffer using **Verilog HDL**.
 
-The design ensures safe data transfer between modules operating at **different clock frequencies**, which is a common requirement in **System-on-Chip (SoC) architectures**, communication interfaces, and digital hardware systems.
+The FIFO is designed for **single clock domain operation**, where both read and write operations are controlled using the same clock signal.
 
-<p align="center">
-<img src="images/block_diagram_async_fifo_.png" width="600">
-</p>
+The design supports:
 
+✔ Configurable FIFO depth  
+✔ Configurable data width  
+✔ Full and Empty flag generation  
+✔ Simultaneous read/write operations  
+✔ Efficient memory management  
+✔ RTL-based scalable architecture  
 
-# 🎯 Key Features
+The project demonstrates a reusable FIFO architecture suitable for:
 
-✔ Parameterized FIFO depth and data width  
-✔ Independent read and write clocks  
-✔ Gray-code pointer synchronization  
-✔ Full and Empty detection  
-✔ Almost Full and Almost Empty flags  
-✔ Dual-port FIFO memory  
-✔ Safe clock domain crossing design  
+- Digital systems
+- SoC designs
+- Communication interfaces
+- FPGA-based systems
 
 ---
 
-# 🧠 Problem Addressed
+# 🎯 Key Features
 
-When two modules operate on **different clocks**, direct data transfer can lead to:
+✅ Single clock operation  
+✅ Parameterized FIFO architecture  
+✅ Full flag generation  
+✅ Empty flag generation  
+✅ Read and write pointer logic  
+✅ FIFO memory array  
+✅ Overflow and underflow protection  
+✅ Synthesizable RTL design  
 
-- Metastability  
-- Data corruption  
-- Timing hazards  
+---
 
-Asynchronous FIFOs solve this problem by acting as a **buffer between clock domains**.
+# 🧠 FIFO Concept
+
+A **FIFO (First-In First-Out)** is a memory structure where:
+
+- The **first data written** is the **first data read**
+- Data is stored sequentially
+- Read and write operations use pointer management
+
+### FIFO Operation
+
+```text
+Write → FIFO Memory → Read
+```
 
 ---
 
 # 🏗 System Architecture
 
 <p align="center">
-<img src="images/system_architecture_async_fifo.png" width="650">
+<img src="docs/system_architecture.png" width="650">
 </p>
 
-The architecture contains the following modules:
+The synchronous FIFO contains:
 
+- FIFO Memory
 - Write Pointer Logic
 - Read Pointer Logic
-- FIFO Memory (Dual-Port)
-- Gray Code Pointer Synchronization
-- Full & Almost Full Detection
-- Empty & Almost Empty Detection
+- Full Detection Logic
+- Empty Detection Logic
+- Control Logic
 
 ---
 
-# ⚙ Core Modules
+# ⚙ Core Components
 
-## Write Pointer Logic
+## 📝 Write Pointer Logic
 
-Maintains the write address inside the **write clock domain**.
+The write pointer tracks the location where new data will be written.
 
 Features:
 
-- Binary write pointer
-- Gray-code conversion
-- Write address generation
-- Overflow protection
+- Incremented during write operation
+- Stops incrementing when FIFO is FULL
+- Prevents overflow condition
 
 <p align="center">
-<img src="images/write_pointer_logic.png" width="500">
+<img src="docs/write_pointer.png" width="500">
 </p>
 
 ---
 
-## Read Pointer Logic
+## 📖 Read Pointer Logic
 
-Maintains the read address inside the **read clock domain**.
+The read pointer tracks the location from where data will be read.
 
 Features:
 
-- Binary read pointer
-- Gray-code conversion
-- Safe pointer synchronization
-- Underflow protection
+- Incremented during read operation
+- Stops incrementing when FIFO is EMPTY
+- Prevents underflow condition
 
 <p align="center">
-<img src="images/read_pointer_logic.png" width="500">
+<img src="docs/read_pointer.png" width="500">
 </p>
 
 ---
 
-## FIFO Memory
+## 💾 FIFO Memory
 
-The memory block is implemented as a **dual-port memory**.
+The FIFO memory stores incoming data sequentially.
 
-| Port | Function |
-|-----|----------|
-| Write Port | Data written using write clock |
-| Read Port | Data read using read clock |
-<p align="center">
-<img src="images/fifo_memory.png" width="500">
-</p>
+```verilog
+reg [WIDTH-1:0] fifo [0:DEPTH-1];
+```
 
-Advantages:
+Features:
 
-- Simultaneous read and write
-- Efficient buffering
-- Prevents overflow/underflow
-
-
+✔ Parameterized memory depth  
+✔ Efficient storage mechanism  
+✔ Synthesizable design  
 
 ---
 
-# 🔄 Gray Code Synchronization
+# 📊 Full and Empty Flag Logic
 
-Binary counters can change **multiple bits simultaneously**, which can cause synchronization errors across clock domains.
+## 🚫 Full Condition
 
-Gray-code solves this problem because:
+FIFO becomes FULL when:
 
-✔ Only **one bit changes at a time**  
-✔ Reduced metastability risk  
-✔ Reliable pointer synchronization  
-
-<p align="center">
-<img src="images/flop_syncronizer.png" width="500">
-</p>
-
-Two-stage flip-flop synchronizers are used for safe CDC transfer.
-
----
-
-# 📊 Full and Almost Full Detection
-
-The FIFO becomes **FULL** when the write pointer catches the read pointer after wrap-around.
-
-### Full Detection Logic
-
-```
-Next Gray Write Pointer == Inverted MSB of Read Pointer
+```text
+(write_pointer + 1) == read_pointer
 ```
 
 <p align="center">
-<img src="images/full.png" width="500">
-</p>
-
-### Almost Full
-
-Provides early warning before FIFO overflow.
-
-```
-Used Entries >= DEPTH - ALMOST_FULL_MARGIN
-```
-
-<p align="center">
-<img src="images/almost_full.png" width="500">
+<img src="docs/full_flag.png" width="450">
 </p>
 
 ---
 
-# 📉 Empty and Almost Empty Detection
+## 📭 Empty Condition
 
-The FIFO becomes **EMPTY** when:
+FIFO becomes EMPTY when:
 
-```
-Read Pointer == Synchronized Write Pointer
-```
-
-<p align="center">
-<img src="images/empty.png" width="500">
-</p>
-
-### Almost Empty
-
-Indicates the buffer is close to empty.
-
-```
-Used Entries <= ALMOST_EMPTY_MARGIN
+```text
+write_pointer == read_pointer
 ```
 
 <p align="center">
-<img src="images/almost_empty.png" width="500">
+<img src="docs/empty_flag.png" width="450">
 </p>
 
 ---
 
 # 🧪 Simulation Results
 
-The FIFO was verified using a **multi-clock testbench**.
+The design was verified using a Verilog testbench.
 
 ### Simulation Waveform
 
 <p align="center">
-<img src="images/simulation_results.png" width="750">
+<img src="images/simulation_waveform.png" width="750">
 </p>
 
-Verified conditions:
+Simulation verifies:
 
-✔ Correct data ordering  
-✔ Proper flag generation  
-✔ Stable clock domain crossing  
+✔ Correct FIFO ordering  
+✔ Full flag assertion  
+✔ Empty flag assertion  
+✔ Proper read/write operation  
 
 ---
 
 # 🧩 RTL Schematic
 
 <p align="center">
-<img src="images/RTL_schematic_fifo.png" width="750">
+<img src="images/rtl_schematic.png" width="750">
 </p>
 
-The RTL view shows:
+The RTL schematic shows:
 
-- Synchronizer modules  
-- FIFO memory block  
-- Pointer generation logic  
-- Flag detection modules  
+- FIFO memory block
+- Pointer logic
+- Control logic
+- Flag generation circuitry
 
 ---
 
 # 📁 Project Structure
 
-```
-Asynchronous-FIFO
+```text
+Synchronous-FIFO
 │
 ├── rtl
-│   ├── asynchronous_fifo.v
-│   ├── sync_w2r.v
-│   ├── sync_r2w.v
-│   ├── fifo_mem.v
-│   ├── full_with_almost.v
-│   └── empty_with_almost.v
+│   ├── synchronous_fifo.v
+│   └── fifo_memory.v
 │
 ├── testbench
 │   └── fifo_tb.v
 │
 ├── docs
-│   ├── architecture.png
-│   ├── pointer_logic.png
-│   └── synchronizer.png
+│   ├── system_architecture.png
+│   ├── write_pointer.png
+│   ├── read_pointer.png
+│   ├── full_flag.png
+│   └── empty_flag.png
 │
 ├── images
-│   ├── simulation_output.png
+│   ├── simulation_waveform.png
 │   └── rtl_schematic.png
 │
 └── README.md
@@ -257,40 +224,91 @@ Asynchronous-FIFO
 
 ---
 
-# ⚡ Design Parameters
+# ⚡ Parameters
 
 | Parameter | Description |
 |-----------|-------------|
 | WIDTH | Data width |
 | DEPTH | FIFO depth |
-| ALMOST_FULL_MARGIN | Threshold for Almost Full |
-| ALMOST_EMPTY_MARGIN | Threshold for Almost Empty |
+
+Example:
+
+```verilog
+parameter WIDTH = 8;
+parameter DEPTH = 16;
+```
 
 ---
 
+# 💻 Example Verilog Snippet
 
-#  Applications
+```verilog
+always @(posedge clk)
+begin
+    if(wr_en && !full)
+    begin
+        fifo[wr_ptr] <= data_in;
+        wr_ptr <= wr_ptr + 1;
+    end
+end
 
-This FIFO can be used in:
-
-- SoC Interconnect Systems
-- Communication Interfaces
-- Bus Bridges
-- Network Routers
-- Processor Pipelines
-- DMA Controllers
+always @(posedge clk)
+begin
+    if(rd_en && !empty)
+    begin
+        data_out <= fifo[rd_ptr];
+        rd_ptr <= rd_ptr + 1;
+    end
+end
+```
 
 ---
 
-#  Future Improvements
+# 🛠 Simulation
 
-Possible extensions include:
+## Using ModelSim
 
-- AXI / AHB FIFO integration
-- Formal CDC verification
-- FPGA implementation
-- ASIC optimization
-- Multi-channel FIFO architecture
+```bash
+vlog synchronous_fifo.v fifo_tb.v
+vsim fifo_tb
+run -all
+```
+
+---
+
+# 🎯 Applications
+
+This FIFO design can be used in:
+
+- Processor pipelines
+- UART communication
+- DMA controllers
+- FPGA systems
+- Buffer management systems
+- Digital communication systems
+
+---
+
+# 🔮 Future Improvements
+
+Possible future enhancements:
+
+- Almost full / almost empty flags
+- AXI Stream FIFO support
+- Burst transaction support
+- Error correction mechanisms
+- FPGA optimization
+
+---
+
+# 📚 Concepts Used
+
+- RTL Design
+- FIFO Architecture
+- Pointer Management
+- Digital Memory Systems
+- Verilog HDL
+- Synchronous Design
 
 ---
 
@@ -298,11 +316,11 @@ Possible extensions include:
 
 **Raviranjan Kumar**
 
-M.Tech – Embedded System Design  
-National Institute of Technology Kurukshetra
+🎓 M.Tech – Embedded System Design  
+🏫 National Institute of Technology Kurukshetra  
 
 ---
 
 # ⭐ Support
 
-If you find this project useful, please **⭐ star the repository**.
+If you found this project useful, please ⭐ star the repository.
