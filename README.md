@@ -169,7 +169,7 @@ The design was verified using a Verilog testbench.
 ### Simulation Waveform
 
 <p align="center">
-<img src="images/simulation_waveform.png" width="750">
+<img src="Simulation_Result_Synchronous_fifo.png" width="750">
 </p>
 
 Simulation verifies:
